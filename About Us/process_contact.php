@@ -5,8 +5,8 @@ session_start();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get form data and sanitize inputs
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $phone = filter_var($_POST['phone'], FILTER_SANITIZE_STRING);
-    $message = filter_var($_POST['message'], FILTER_SANITIZE_STRING);
+    $phone = preg_replace('/[^0-9]/', '', $_POST['phone']);
+    $message = htmlspecialchars($_POST['message'], ENT_QUOTES, 'UTF-8');
     
     // Validate email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -18,19 +18,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate phone (basic validation)
     if (empty($phone)) {
         $_SESSION['contact_error'] = "Phone number is required";
-        header("Location: contact us.php#contactForm");
+        header("Location: contact_us.php#contactForm");
         exit;
     }
-    
+
     if(strlen($phone) != 10){
         $_SESSION['contact_error'] = "Phone number should be of 10 digits";
-        header("Location: contact us.php#contactForm");
+        header("Location: contact_us.php#contactForm");
         exit;
     }
-    
-    if(!filter_var($phone, FILTER_VALIDATE_INT) || strlen($phone) != 10){
+
+    if(!ctype_digit($phone)){
         $_SESSION['contact_error'] = "Phone number should not contain any alphabets and special characters";
-        header("Location: contact us.php#contactForm");
+        header("Location: contact_us.php#contactForm");
         exit;
     }
     // Prepare email content
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Set additional headers for HTML email
     $headers = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-    $headers .= "From: $email" . "\r\n";
+    $headers .= "From: noreply@web-nexus.com" . "\r\n";
     $headers .= "Reply-To: $email" . "\r\n";
     
     // Send email
@@ -69,6 +69,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
 } else {
     // If someone tries to access this file directly
-    header("Location: contact us.php");
+    header("Location: contact_us.php");
     exit;
 }
