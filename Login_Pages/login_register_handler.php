@@ -2,7 +2,8 @@
 
 include("config.php");
 session_start();
-$log_file = 'auth_log.txt';
+$log_file = __DIR__ . '/auth_log.txt';
+
 
 // Rate limiting function
 function checkRateLimit($email)
